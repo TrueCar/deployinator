@@ -1,3 +1,6 @@
 .bundle/
 vendor/
 Gemfile.lock
+*.un~
+*.swp
+.DS_Store
