@@ -397,7 +397,7 @@ module Deployinator
     end
 
     def lock_pushes(stack, who, method)
-      log_and_stream("LOCKING #{stack}")
+      log_and_stream("LOCKING #{stack}<br>")
       if lock_info = push_lock_info(stack)
         return log_and_stream("Pushes locked by #{lock_info[:who]} - #{lock_info[:method]}")
       end

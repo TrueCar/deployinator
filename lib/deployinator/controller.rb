@@ -105,8 +105,8 @@ module Deployinator
       deploy_instance.lock_pushes(options[:stack], options[:username], options[:method])
 
       @start_time = Time.now
-      deploy_instance.log_and_stream "Push started at #{@start_time.to_i}\n"
-      deploy_instance.log_and_stream "Calling #{options[:method]}\n";
+      deploy_instance.log_and_stream "Push started at #{@start_time.to_i}<br>\n"
+      deploy_instance.log_and_stream "Calling #{options[:method]}<br>\n";
       deploy_instance.link_stack_logfile(deploy_instance.get_filename, options[:stack])
 
       deploy_instance.raise_event(:deploy_start)
@@ -128,7 +128,8 @@ module Deployinator
       elsif options[:method].match(/force_builda/)
         env = "force asset rebuild"
       else
-        env = options[:method][/(dev|qa|production|princess|prod|webs|stage|config)/i, 1] || "other"
+        env_pattern = /(dev|qa|production|princess|prod|webs|stage|staging|uat|config)/i
+        env = options[:method][env_pattern, 1] || "other"
         env = "production" if env.match(/prod|webs/)
       end
 
