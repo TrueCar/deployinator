@@ -25,7 +25,7 @@ module Deployinator
     def github_diff_url(params)
       stack = params[:stack].intern
       gh_info = git_info_for_stack[stack]
-      "https://#{which_github_host(stack)}/#{gh_info[:user]}/#{gh_info[:repository]}/compare/#{params[:r1]}...#{params[:r2]}"
+      "#{which_github_host_http_proto(stack)}://#{which_github_host(stack)}/#{gh_info[:user]}/#{gh_info[:repository]}/compare/#{params[:r1]}...#{params[:r2]}"
     end
 
     set :mustache, {
