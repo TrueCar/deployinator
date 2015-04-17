@@ -1,11 +1,20 @@
 require 'enumerator'
 require 'date'
+require 'octokit'
 
 module Deployinator
   module Helpers
     # Public: module containing helper methods for interacting with git
     # repositories and extracting information from them.
     module GitHelpers
+
+      Octokit.configure do |c|
+        c.api_endpoint = Deployinator.git_info[:github_api_endpoint]
+        c.web_endpoint = Deployinator.git_info[:github_web_endpoint]
+      end
+
+      @@octokit = Octokit::Client.new(:login => Deployinator.git_info[:github_login],
+                                      :password => Deployinator.git_info[:github_password])
 
       # Where we cache the current head rev. stack name wil be appended
       @@rev_head_cache = "/tmp/rev_head_cache"
@@ -258,8 +267,21 @@ module Deployinator
       #
       # Returns string
       def which_github_host(stack)
-        github_host = git_info_for_stack[stack][:host]
+        github_host = git_info_for_stack[stack][:host] rescue nil
         github_host || Deployinator.github_host
+      end
+
+      def which_github_host_http_proto(stack)
+        github_host_http_proto = git_info_for_stack[stack][:github_host_http_proto] rescue nil
+        github_host_http_proto || Deployinator.git_info[:github_host_http_proto]
+      end
+
+      def git_info
+        if Deployinator.git_info
+          Deployinator.git_info
+        else
+          {}
+        end
       end
 
       def git_info_for_stack
@@ -341,6 +363,36 @@ module Deployinator
           list_of_touched_files = run_cmd(%Q{#{ssh_cmd} "#{extra} #{cmd}"})[:stdout]
         end
         return list_of_touched_files.split("\n")
+      end
+
+      def git_tag_remote_head(stack, tag, message, update=false, branch=nil)
+        stack = stack.intern
+        branch = branch || git_info_for_stack[stack][:branch]
+        repo = "#{git_info_for_stack[stack][:user]}/#{git_info_for_stack[stack][:repository]}"
+
+        existing_ref = @@octokit.ref(repo, "tags/#{tag}")[:object][:sha] rescue nil
+        return false if existing_ref and ! update
+
+        head_digest = @@octokit.ref(repo,"heads/#{branch}")[:object][:sha]
+
+        new_tag = @@octokit.create_tag(
+          repo,
+          tag,
+          message,
+          head_digest,
+          'commit',
+          'LiteBright Deployment',
+          'devops@truecar.com',
+          DateTime.now.to_s
+        )
+
+        if existing_ref
+          new_ref = @@octokit.update_ref(repo, "tags/#{tag}", new_tag[:sha])
+        else
+          new_ref = @@octokit.create_ref(repo, "tags/#{tag}", new_tag[:sha])
+        end
+
+        return new_ref[:object][:sha]
       end
 
     end

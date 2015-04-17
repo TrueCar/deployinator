@@ -31,6 +31,9 @@ module Deployinator
     # Your install root
     attr_accessor :root_dir
 
+    # Global git info
+    attr_accessor :git_info
+
     # Git info per stack
     attr_accessor :git_info_for_stack
 
@@ -108,7 +111,9 @@ Deployinator.timing_log_path = Deployinator.root(["log", "deployinator-timing.lo
 Deployinator.git_sha_length = "10"
 Deployinator.default_user = `whoami`
 Deployinator.stack_tailer_port = 7778
+Deployinator.git_info = {
+  :github_host => 'github.com',
+  :github_host_http_proto => 'https',
+}
 Deployinator.github_host = 'github.com'
 Deployinator.app_context['context'] = 'dev'
-
-
