@@ -273,23 +273,15 @@ module Deployinator
 
       def which_github_host_http_proto(stack)
         github_host_http_proto = git_info_for_stack[stack][:github_host_http_proto] rescue nil
-        github_host_http_proto || Deployinator.git_info[:github_host_http_proto]
+        github_host_http_proto || Deployinator.git_info[:github_host_http_proto] || 'https'
       end
 
       def git_info
-        if Deployinator.git_info
-          Deployinator.git_info
-        else
-          {}
-        end
+        Deployinator.git_info || {}
       end
 
       def git_info_for_stack
-        if Deployinator.git_info_for_stack
-          Deployinator.git_info_for_stack
-        else
-          {}
-        end
+        Deployinator.git_info_for_stack || {}
       end
 
       # Public: determines whether a given filesystem path is a git repo
