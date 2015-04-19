@@ -46,6 +46,9 @@ module Deployinator
     # Log path
     attr_accessor :log_path
 
+    # Template for streamed logs
+    attr_accessor :stream_template_file
+
     attr_accessor :git_sha_length
 
     attr_accessor :global_plugins
@@ -117,3 +120,4 @@ Deployinator.git_info = {
 }
 Deployinator.github_host = 'github.com'
 Deployinator.app_context['context'] = 'dev'
+Deployinator.stream_template_file = "#{File.dirname(__FILE__)}/deployinator/templates/stream.mustache"
