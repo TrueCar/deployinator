@@ -82,6 +82,15 @@ module Deployinator
       lock_info.to_json
     end
 
+    get '/:stack/versions' do
+      @stack = params[:stack]
+      content_type "application/json"
+      view = Object.const_get("Deployinator::Views::#{@stack.classify}").new
+      view.send("#{@stack}_environments").map do |env|
+        [ env[:name], env[:current_version].call ]
+      end.to_json
+    end
+
     get '/diff/:stack/:r1/:r2/?' do
       @stack = params[:stack]
       diff(params["r1"], params["r2"], params["stack"], params[:time])
