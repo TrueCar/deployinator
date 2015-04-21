@@ -82,12 +82,22 @@ module Deployinator
       lock_info.to_json
     end
 
-    get '/:stack/versions' do
+    get '/:stack/builds' do
       @stack = params[:stack]
       content_type "application/json"
       view = Object.const_get("Deployinator::Views::#{@stack.classify}").new
       view.send("#{@stack}_environments").map do |env|
-        [ env[:name], env[:current_version].call ]
+        [ env[:name], env[:current_build].call ]
+      end.to_json
+    end
+
+    get %r{/(?<stack>[^\/]+?)/(?<type>versions|builds)} do
+      @stack = params[:stack]
+      type = params[:type].gsub(/s$/,'')
+      content_type "application/json"
+      view = Object.const_get("Deployinator::Views::#{@stack.classify}").new
+      view.send("#{@stack}_environments").map do |env|
+        [ env[:name], env[:"current_#{type}"].call ]
       end.to_json
     end
 
