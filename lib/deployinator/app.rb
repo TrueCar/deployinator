@@ -82,6 +82,23 @@ module Deployinator
       lock_info.to_json
     end
 
+    get '/:stack/versions' do
+      @stack = params[:stack]
+      #register_plugins(@stack) ## don't think we need this? just copied it from /:thing
+      require "views/#{@stack}"
+      content_type "application/json"
+      eval("Deployinator::Views::#{@stack.classify}.new").send("#{@stack}_environments").map do |env|
+        [ env[:name], env[:current_version].call ]
+      end.to_json
+
+      ### this is the code from the old gem
+      #inst = mustache_class(@stack, settings.mustache).new
+
+      #meth = "#{@stack}_%s_#{type}"
+      #inst.push_order.collect {|env| [env, inst.send(meth % env)]}.to_json
+    end
+
+
     get '/diff/:stack/:r1/:r2/?' do
       @stack = params[:stack]
       diff(params["r1"], params["r2"], params["stack"], params[:time])
