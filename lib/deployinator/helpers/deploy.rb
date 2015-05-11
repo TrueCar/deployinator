@@ -9,10 +9,13 @@ module Deployinator
         # => stagename}
         def get_list_of_deploys
           ret = []
-          raw = `pgrep -d, -l -f Deployinator`.strip.split(",")
+          raw = `pgrep -a -d, -l -f Deployinator`.strip.split(",")
           raw.each do |deploy|
             deploy = deploy.strip
-            if deploy =~ /Deployinator - deploy (\S+?):(\S+?)$/
+            ## TODO: make this just 1 regex
+            if deploy =~ /Deployinator - deploy (\w+):(\w+):(\w+)/
+              ret << {:stack => $1, :stage => $2, :username => $3}
+            elsif deploy =~ /Deployinator - deploy (\w+):(\w+)/
               ret << {:stack => $1, :stage => $2}
             end
           end
@@ -58,9 +61,9 @@ module Deployinator
         #   stage - name of the stage
         #
         # Returns the title as a string or nil on error
-        def get_deploy_process_title(stack=nil, stage=nil)
+        def get_deploy_process_title(stack=nil, stage=nil, user=nil)
           return nil if (stack.nil? or stage.nil?)
-          "Deployinator - deploy #{stack}:#{stage}"
+          user.nil? ? "Deployinator - deploy #{stack}:#{stage}" : "Deployinator - deploy #{stack}:#{stage}:#{user}"
         end
 
     end

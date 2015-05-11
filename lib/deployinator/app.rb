@@ -202,7 +202,7 @@ module Deployinator
       fork {
         Signal.trap("HUP") { exit }
         Deployinator.setup_logging
-        $0 = get_deploy_process_title(params[:stack], params[:stage])
+        $0 = get_deploy_process_title(params[:stack], params[:stage], params[:username])
         controller = Deployinator.deploy_controller || Deployinator::Controller
         d = controller.new
         d.run(params)
