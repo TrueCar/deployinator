@@ -9,7 +9,12 @@ module Deployinator
         # => stagename}
         def get_list_of_deploys
           ret = []
-          raw = `pgrep -a -d, -l -f Deployinator`.strip.split(",")
+          if RUBY_PLATFORM =~ /darwin/
+            pgrep_cmd = 'pgrep -a'
+          else
+            pgrep_cmd = 'pgrep'
+          end
+          raw = `#{pgrep_cmd} -d, -l -f Deployinator`.strip.split(",")
           raw.each do |deploy|
             deploy = deploy.strip
             ## TODO: make this just 1 regex
