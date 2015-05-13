@@ -101,6 +101,15 @@ module Deployinator
       end.to_json
     end
 
+    get %r{/(?<stack>[^\/]+?)/next_builds} do
+      @stack = params[:stack]
+      content_type "application/json"
+      view = Object.const_get("Deployinator::Views::#{@stack.classify}").new
+      view.send("#{@stack}_environments").map do |env|
+        [ env[:name], env[:"next_build"].call ]
+      end.to_json
+    end
+
     get '/diff/:stack/:r1/:r2/?' do
       @stack = params[:stack]
       diff(params["r1"], params["r2"], params["stack"], params[:time])
