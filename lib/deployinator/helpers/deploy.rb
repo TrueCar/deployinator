@@ -18,8 +18,8 @@ module Deployinator
           raw.each do |deploy|
             deploy = deploy.strip
             ## TODO: make this just 1 regex
-            if deploy =~ /Deployinator - deploy (\w+):(\w+):(\w+)/
-              ret << {:stack => $1, :stage => $2, :username => $3}
+            if deploy =~ /Deployinator - deploy (\w+):(\w+):(\w+):(\w+)/
+              ret << {:stack => $1, :stage => $2, :username => $3, :version => $4}
             elsif deploy =~ /Deployinator - deploy (\w+):(\w+)/
               ret << {:stack => $1, :stage => $2}
             end
@@ -64,11 +64,12 @@ module Deployinator
         # Parameters:
         #   stack - name of the stack
         #   stage - name of the stage
+        #   user  - name of the user
         #
         # Returns the title as a string or nil on error
-        def get_deploy_process_title(stack=nil, stage=nil, user=nil)
+        def get_deploy_process_title(stack=nil, stage=nil, user='unknown', version=nil)
           return nil if (stack.nil? or stage.nil?)
-          user.nil? ? "Deployinator - deploy #{stack}:#{stage}" : "Deployinator - deploy #{stack}:#{stage}:#{user}"
+          "Deployinator - deploy #{stack}:#{stage}:#{user}:#{version}"
         end
 
     end
