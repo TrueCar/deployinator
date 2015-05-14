@@ -199,6 +199,11 @@ module Deployinator
     # this is the API endpoint to asynchronously start a deploy that runs in
     # the background.
     post '/deploys/?' do
+      stack = params[:stack]
+      view = Object.const_get("Deployinator::Views::#{stack.classify}").new
+      view.send("#{stack}_environments").map do |env|
+        params[:version] = env[:next_build].call if env[:method] == params[:method]
+      end
       params[:username] = @username
       params[:block] = Proc.new { |line| foo = line }
       deploy_running = is_deploy_active?(params[:stack], params[:stage])
@@ -211,7 +216,7 @@ module Deployinator
       fork {
         Signal.trap("HUP") { exit }
         Deployinator.setup_logging
-        $0 = get_deploy_process_title(params[:stack], params[:stage], params[:username])
+        $0 = get_deploy_process_title(params[:stack], params[:stage], params[:username], params[:version])
         controller = Deployinator.deploy_controller || Deployinator::Controller
         d = controller.new
         d.run(params)
